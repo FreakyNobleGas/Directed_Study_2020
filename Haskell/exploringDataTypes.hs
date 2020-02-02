@@ -54,6 +54,12 @@ data ShippingItem = ShippingItem {
      arrivalDate :: ArrivalDate
 } deriving Show
 
+item = ShippingItem {
+     itemNum = 2345,
+     itemContents = ["paper", "paperclips", "ruler"],
+     arrivalDate = 02022020
+}
+
 
 -- Algebraic Data Types, the "|" is the same as saying "Or"
 data Bool = False | True
