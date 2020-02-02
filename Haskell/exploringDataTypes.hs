@@ -14,6 +14,9 @@ data People = Person Name Age DateOfBirth PermanentAddress deriving Show
 
 johnDoe = Person "John Doe" 26 01101994 "1600 Pennsylvania Ave"
 
+-----------------------------------------------------------------------------
+-- This example is taken from the book Real World Haskell
+
 type CardHolder = String
 type CardNumber = String
 type Address = [String]
@@ -27,6 +30,30 @@ data BillingInfo = CreditCard CardNumber CardHolder Address
                  | CashOnDelivery
                  | Invoice CustomerID
                    deriving (Show)
+
+-----------------------------------------------------------------------------
+
+customerOneBilling = Invoice 546
+customerTwoBilling = CreditCard "2345" "Jane Doe" ["123 Derry Lane", "Manhattan, New York"]
+
+-- Pattern matching, return CustomerID from Invoice. This is also known as an
+-- accessor function
+customerOneId (Invoice id) = id
+
+-- Uses "_" wildcard
+customerTwoId (CreditCard cardNumber _ _) = cardNumber
+
+type ItemNum = Int
+type ItemContents = [String]
+type ArrivalDate = Int
+
+-- Example of defining a datatype and accessors simultaneously
+data ShippingItem = ShippingItem {
+     itemNum :: ItemNum,
+     itemContents :: ItemContents,
+     arrivalDate :: ArrivalDate
+} deriving Show
+
 
 -- Algebraic Data Types, the "|" is the same as saying "Or"
 data Bool = False | True
@@ -48,3 +75,6 @@ data Months = January
 -- Function to calculate the sum of all elements in the list
 addList (x:n) = x + addList n
 addList [] = 0
+
+-- Returns the second element of a tuple
+secondElement (first, second, third) = second
