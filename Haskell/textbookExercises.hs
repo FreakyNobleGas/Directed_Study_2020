@@ -9,6 +9,7 @@
 
 -- Import Libraries
 import Data.List
+import Data.Char
 
 {-
  Chapter 3 Exercises
@@ -54,4 +55,18 @@ calculateSumOfList [] = 0
 calculateMeanOfList (x:xl) = let sum = calculateSumOfList (x:xl) in
                              let l = genericLength (x:xl) in
                              sum / l
-                                        
+
+{-
+    Chapter 4 Exercises
+-}
+
+-- 1. Using a fold (choosing the appropriate fold will make your code much simpler)
+-- to rewrite and improve upon the asInt function from the section called "Explicit
+-- Recursion"
+
+-- asInt_fold :: String -> Int
+
+loop :: Int -> String -> Int 
+--asInt xs = loop 0 xs 
+loop acc (x:xs) = let acc' * 10 + digitToInt x
+                  in loop acc' xs
