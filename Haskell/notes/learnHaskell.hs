@@ -7,20 +7,16 @@ Example of Compiler Output
 sqrt :: Floating a=> a -> a
 -}
 
--- Modules
+-- Import modules (Note: The prelude library is imported by default)
 import Data.List
 import Data.Map
 import System.IO
 
-
-import Prelude
-
 test = Prelude.foldl (+) 0 [5,3,6]
-
 
 -- Int Min = -2^63 Max = 2^63
 maxInt = maxBound :: Int
-minInt = minBound :: Int 
+minInt = minBound :: Int
 
 -- Haskell has Int, Double, Float, Bool, Char
 --             Tuple
@@ -40,7 +36,7 @@ negNumEx = 5 + (-4)
 --map(\x -> x + 1)[1..5]
 
 -- Folding
--- foldl folds list from the left and foldr folds from the 
+-- foldl folds list from the left and foldr folds from the
 -- right. This would make a difference in an operation like
 -- subtraction.
 -- Equivilant of ((0 + 5) + 3) + 6
