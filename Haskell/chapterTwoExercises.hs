@@ -35,3 +35,13 @@ printType t = print (typeOf t)
 
 lastButOne :: [a] -> a
 lastButOne (x:xs) = head (drop (length (x:xs) - 2) (x:xs))
+
+-- Returns the second to last element of a list if there is more than 2 elements
+lastButOne2 :: [a] -> Maybe a
+lastButOne2 x = case x of 
+            [] -> Nothing
+            [x] -> Nothing
+            (x:xs) -> Just (head (drop (length (x:xs) - 2) (x:xs)))
+
+
+
