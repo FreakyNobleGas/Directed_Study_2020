@@ -11,6 +11,7 @@ Chapter Two Exercises
 -}
 
 import Data.Typeable
+import Data.List (reverse)
 
 t1 = False -- Bool
 t2 = (["foo", "bar"], 'a') -- ([[Char]],Char)
@@ -32,8 +33,5 @@ printType t = print (typeOf t)
   3. Write a function lastButOne, that returns the element before the last.
 -}
 
--- TODO: Finish solving this problem
---lastButOne :: Maybe  [a] => [a] -> Maybe a
-lastButOne [] = Nothing
-lastButOne[x:[]] = Nothing
-lastButOne[x:_] = Just length [x:_]
+lastButOne :: [a] -> a
+lastButOne (x:xs) = head (drop (length (x:xs) - 2) (x:xs))

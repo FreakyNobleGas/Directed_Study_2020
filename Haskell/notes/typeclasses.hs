@@ -146,3 +146,6 @@ newtype Record = Record {
 -- bad: more than one constructor
 --newtype TooManyCtors = Bad Int
 --                     | Worse Int
+
+-- Using the keyword "type" acts as a synoynm for a name for a data type,
+-- and can therefore be used interchangably. 
