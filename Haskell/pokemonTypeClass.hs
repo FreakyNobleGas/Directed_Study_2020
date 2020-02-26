@@ -2,6 +2,14 @@
 --
 -- Description: This type class represents all of the 1st Generation Pokemon types and their
 --              corresponding strengths and weaknesses.
+--
+-- Link to Table: https://pokemondb.net/type/old
+--
+-- Usage: `isEffective PokeType PokeType` where the first PokeType is the attacking Pokemon
+--        and the second is the defending.
+--
+-- Example: isEffective Grass Dragon
+-- Result:  Not Very Effective!
 
 -- All 1st Generation Pokemon Types
 data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
@@ -150,5 +158,3 @@ instance PokemonEffectiveness PokeType where
     -- Dragon Type
     isEffective Dragon Dragon = SuperEffective
     isEffective Dragon _ = NormalEffectiveness
-
-
