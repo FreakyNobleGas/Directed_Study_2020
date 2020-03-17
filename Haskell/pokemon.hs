@@ -4,6 +4,7 @@
 --
 
 import System.IO
+import Data.List (lines)
 
 -- All 1st Generation Pokemon Types
 data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
@@ -33,8 +34,25 @@ bulbasaur = Pokemon {
     pokeType = Grass
 }
 
+main :: IO()
 main = do
     handle <- openFile "ListOfPokemon.csv" ReadMode
     contents <- hGetContents handle  
-    putStr contents  
+    --putStr contents
+    let test = lines contents
+    print test
+    --mainloop handle  
     hClose handle 
+
+{--
+mainloop :: Handle -> IO()
+mainloop handle =
+    do ineof <- hIsEOF handle
+        if ineof
+            then return ()
+            else do 
+                inpStr <- hGetLine handle
+                putStr inpStr
+                mainloop handle
+
+--}
