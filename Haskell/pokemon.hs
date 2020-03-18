@@ -15,9 +15,7 @@ import Data.List (lines)
 class UniquePokemon p where
     getType :: p -> PokeType
     getName :: p -> String
-    getIndex :: p -> Int
-    -- TODO Define isEffective
-    --isEffective :: p -> PokeType -> Effectiveness
+    getIndex :: p -> Int 
 
 --
 -- Definition of methods defined in UniquePokemon class that retrieve information
@@ -28,10 +26,6 @@ instance UniquePokemon Pokemon where
     getName p = name p
     getIndex p = index p
 
--- TODO: Find a way to correctly define an instance were Pokemon and PokeType are used
---instance UniquePokemon Pokemon PokeType where 
---    isEffective = calculateEffectiveness 
-
 --
 -- Pokemon Data Type
 --
@@ -41,12 +35,27 @@ data Pokemon = Pokemon {
     pokeType :: PokeType
 }
 
--- Example of a Pokemon Data Type declaration
+--
+-- Example of a Pokemon Data Type declarations.
+--
 bulbasaur = Pokemon {
     name = "Bulbasaur",
     index = 1,
     pokeType = Grass
 }
+
+charmander = Pokemon {
+    name = "Charmander",
+    index = 4,
+    pokeType = Fire
+}
+
+squirtle = Pokemon {
+    name = "Squirtle",
+    index = 7,
+    pokeType = Water
+}
+
 
 -- TODO: Create Parser for Pokemon list
 --parsePokemonList :: [a] -> [Pokemon]
@@ -92,8 +101,8 @@ instance Show Effectiveness where
 -- Function to calculate the effectiveness of a specific Pokemon against another defending Pokemon
 -- based on it's type.
 --
-{-- TODO: Correctly implement this function for the UniquePokemon class
-calculateEffectiveness :: a -> a -> Effectiveness
+-- Example Usage: calculateEffectiveness (getType squirtle) (getType bulbasaur)
+calculateEffectiveness :: PokeType -> PokeType -> Effectiveness
 
 -- Normal Type
 calculateEffectiveness Normal Rock = NotVeryEffective
@@ -220,4 +229,3 @@ calculateEffectiveness Ghost _ = NormalEffectiveness
 -- Dragon Type
 calculateEffectiveness Dragon Dragon = SuperEffective
 calculateEffectiveness Dragon _ = NormalEffectiveness
---}
