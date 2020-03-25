@@ -61,10 +61,16 @@ squirtle = Pokemon {
 --parsePokemonList :: [a] -> [Pokemon]
 --parsePokemonList (x:xs)
 
---oneByOne :: IO [String] -> IO [String]
+--oneByOne :: [IO [String]] -> IO [String]
 --oneByOne (x:xs) = x
-oneByOne p = p
+--oneByOne :: IO [String] -> [IO ()]
+--oneByOne p = map print p
 
+oneByOne :: IO [String] -> IO [String]
+oneByOne x = x
+
+parsePokemonList :: IO [String]
+--parsePokemonList = let p = allPokemon in oneByOne p
 parsePokemonList = let p = allPokemon in oneByOne p
     --handle <- openFile "ListOfPokemon.csv" ReadMode
     --contents <- hGetContents handle
