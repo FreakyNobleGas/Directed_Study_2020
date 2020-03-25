@@ -61,7 +61,11 @@ squirtle = Pokemon {
 --parsePokemonList :: [a] -> [Pokemon]
 --parsePokemonList (x:xs)
 
-parsePokemonList = let test = allPokemon in lines test
+--oneByOne :: IO [String] -> IO [String]
+--oneByOne (x:xs) = x
+oneByOne p = p
+
+parsePokemonList = let p = allPokemon in oneByOne p
     --handle <- openFile "ListOfPokemon.csv" ReadMode
     --contents <- hGetContents handle
 
@@ -69,7 +73,7 @@ parsePokemonList = let test = allPokemon in lines test
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
 -- an array with each Pokemon's characteristics seperated by a comma.
 --
---allPokemon :: IO()
+allPokemon :: IO [String]
 allPokemon = do
     -- Open File Stream
     handle <- openFile "ListOfPokemon.csv" ReadMode
@@ -79,9 +83,8 @@ allPokemon = do
 
     -- Close File Stream
     --hClose handle
-
-    --let test = lines contents
-    return contents
+    let test = lines contents
+    return test
 
 --
 -- All 1st Generation Pokemon Types
