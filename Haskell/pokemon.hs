@@ -82,7 +82,7 @@ parsePokemonList = let p = allPokemon in oneByOne p
 test :: [String] -> String
 test p = head p
 
-
+allPokemon :: IO String
 allPokemon = do
     {-
     -- Open File Stream
