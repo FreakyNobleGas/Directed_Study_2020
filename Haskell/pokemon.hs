@@ -7,7 +7,7 @@
 
 import System.IO
 import Data.List (lines)
-
+import Data.List.Split
 --
 -- This class allows each unique Pokemon to access it's various traits
 -- and/or set them
@@ -56,8 +56,7 @@ squirtle = Pokemon {
     pokeType = Water
 }
 
-
--- TODO: Create Parser for Pokemon list
+--TODO: Create Parser for Pokemon list
 --parsePokemonList :: [a] -> [Pokemon]
 --parsePokemonList (x:xs)
 
@@ -65,6 +64,7 @@ squirtle = Pokemon {
 --oneByOne (x:xs) = x
 --oneByOne :: IO [String] -> [IO ()]
 --oneByOne p = map print p
+
 {--
 oneByOne :: IO [String] -> IO [String]
 oneByOne x = x
@@ -75,31 +75,28 @@ parsePokemonList = let p = allPokemon in oneByOne p
     --handle <- openFile "ListOfPokemon.csv" ReadMode
     --contents <- hGetContents handle
 --}
+
 --
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
 -- an array with each Pokemon's characteristics seperated by a comma.
 --
-test :: [String] -> String
-test p = head p
+test :: [String] -> [[String]]
+test p = map (splitOn ",") p
 
-allPokemon :: IO String
-allPokemon = do
-    {-
-    -- Open File Stream
-    handle <- openFile "ListOfPokemon.csv" ReadMode
+main :: IO String
+main = do 
+  -- Lazy I/O
+  contents <- readFile "listOfPokemon.csv"
 
-    -- Grab all contents
-    contents <- hGetContents handle
+  -- Convert String to [String]
+  let a = lines contents
+  
+  -- See if IO [String] can be passed to 'pure' function
+  let b = test a
+  print b
+  -- This return statement still returns a IO String
+  return contents
 
-    -- Close File Stream
-    --hClose handle
-    let test = lines contents
-    return test
-    -}
-    contents <- readFile "listOfPokemon.csv"
-    let a = lines contents
-    let b = test a
-    return b
 --
 -- All 1st Generation Pokemon Types
 --
