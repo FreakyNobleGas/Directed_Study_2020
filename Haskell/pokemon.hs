@@ -80,8 +80,8 @@ parsePokemonList = let p = allPokemon in oneByOne p
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
 -- an array with each Pokemon's characteristics seperated by a comma.
 --
-test :: [String] -> [[String]]
-test p = map (splitOn ",") p
+parseComma :: [String] -> [[String]]
+parseComma p = map (splitOn ",") p
 
 main :: IO String
 main = do 
@@ -92,7 +92,8 @@ main = do
   let a = lines contents
   
   -- See if IO [String] can be passed to 'pure' function
-  let b = test a
+  let b = parseComma a
+  
   print b
   -- This return statement still returns a IO String
   return contents
