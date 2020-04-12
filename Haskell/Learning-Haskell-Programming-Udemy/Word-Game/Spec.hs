@@ -10,6 +10,6 @@ import GridData
 
 main :: IO()
 main = hspec $ do
-    describe "How to write a test" $ do
-        it "Should be able to run tests" $ do
-            someString `shouldBe` "someString"
+    describe "formatGrid" $ do
+        it "Should concatenate every line with a newline" $ do
+            (formatGrid ["abc", "def", "ghi"]) `shouldBe` "abc\ndef\nghi\n"
