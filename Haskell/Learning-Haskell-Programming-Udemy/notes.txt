@@ -65,3 +65,9 @@ Many data types that you define can use the `deriving` keyword, that will automa
 Pattern Matching
 ----------------
 
+Section 3:
+
+Setting up the Word Game Grid
+-----------------------------
+
+Hoogle is a great resource for finding functions based on type signatures
