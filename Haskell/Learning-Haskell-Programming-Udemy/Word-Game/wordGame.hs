@@ -12,6 +12,8 @@ module WordGameLib
       languages,
       formatGrid,
       outputGrid,
+      getLines,
+      diagonalize,
       findWord,
       findWords,
       skew,
@@ -32,12 +34,24 @@ outputGrid grid = putStrLn (formatGrid grid)
 formatGrid :: Grid -> String
 formatGrid lines = unlines lines 
 
--- Combines the horizontal and vertical lines, then concatenates the reverse of each of these lines
+-- Finds the lines of the grid in every direction
 getLines grid = 
+  -- Get lines horizontal
   let horizontal = grid
+      -- Flip rows and columns
       vertical = transpose grid
-      lines = horizontal ++ vertical
+      -- Flip horizontal, but skew the grid by pushing one element to the head of every line after
+      -- the first line
+      diagonal1 = diagonalize grid
+      -- Do the same as before, but reverse the lines so they match
+      diagonal2 = diagonalize (map reverse grid)
+      -- Concat each of the results
+      lines = horizontal ++ vertical ++ diagonal1 ++ diagonal2
   in lines ++ (map reverse lines)
+
+-- Using (func1 . func2) var is called composing since we are using the results of one function for the next
+diagonalize :: Grid -> Grid
+diagonalize grid = (transpose . skew) grid
 
 -- Recursive function
 skew :: Grid -> Grid

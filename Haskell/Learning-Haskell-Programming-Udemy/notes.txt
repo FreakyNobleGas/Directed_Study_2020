@@ -82,3 +82,11 @@ To index a list, you could simply say 'list !! 0'. This would return the first e
 
 The map function applies a function on every element of a list
     - Example: map length ["hello", "Haskell"] would return [5,7]
+
+Searching in All Directions
+---------------------------
+Using (func1 . func2) var is called composing since we are using the results of one function for the next
+
+United Testing the Grid with Hspec
+----------------------------------
+
