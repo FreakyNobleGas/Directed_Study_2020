@@ -8,8 +8,6 @@
 
 module WordGameLib
     ( 
-      grid,
-      languages,
       formatGrid,
       outputGrid,
       getLines,
@@ -22,6 +20,7 @@ module WordGameLib
 
 import Data.List (isInfixOf, transpose)
 import Data.Maybe (catMaybes)
+import GridData
 
 type Grid = [String]
 
@@ -81,6 +80,7 @@ findWords grid words =
 findWordInLine :: String -> String -> Bool
 findWordInLine word line = word `isInfixOf` line
 
+{- Moved to data.hs
 
 grid = [ 
         "__C________R___",
@@ -109,3 +109,4 @@ languages = [
             "RUBY",
             "SCHEME"
             ]
+-}

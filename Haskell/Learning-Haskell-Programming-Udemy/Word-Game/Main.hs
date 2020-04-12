@@ -9,6 +9,7 @@
 --
 
 import WordGameLib
+import GridData
 
 main :: IO()
 main = outputGrid grid
