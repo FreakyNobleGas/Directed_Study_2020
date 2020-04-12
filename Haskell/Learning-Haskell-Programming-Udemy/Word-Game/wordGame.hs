@@ -35,7 +35,7 @@ findWord :: Grid -> String -> Bool
 findWord grid word = 
   -- Also include the lines of the grid in reverse, so we can search the lines backwards horizontally.
   let lines = grid ++ (map reverse grid)
-  in or ( map (findWordInLine word) grid)
+  in or ( map (findWordInLine word) lines)
 
 -- isInfixOf finds if word is contained in line.
 -- Example: map (findWorldInLine "HASKELL") grid
