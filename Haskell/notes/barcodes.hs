@@ -35,6 +35,7 @@ import System.Environment (getArgs)
 import qualified Data.ByteString.Lazy.Char8 as L
 import qualified Data.Map as M
 
+-- Imported from Chapter 10
 import Parse  
 
 -- Locates the last digit of the barcode to determine it's check digit. The check digit is calculated
