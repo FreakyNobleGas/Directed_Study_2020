@@ -71,3 +71,14 @@ Setting up the Word Game Grid
 -----------------------------
 
 Hoogle is a great resource for finding functions based on type signatures
+
+Searching For Words
+-------------------
+
+The `` allows us to put a function in the middle of two arguments
+    - Example: "pie" `isInfixOf` "piece"
+
+To index a list, you could simply say 'list !! 0'. This would return the first element.
+
+The map function applies a function on every element of a list
+    - Example: map length ["hello", "Haskell"] would return [5,7]
