@@ -13,10 +13,12 @@ module WordGameLib
       formatGrid,
       outputGrid,
       findWord,
+      findWords,
       findWordInLine
     ) where 
 
 import Data.List (isInfixOf)
+import Data.Maybe (catMaybes)
 
 type Grid = [String]
 
@@ -29,13 +31,20 @@ outputGrid grid = putStrLn (formatGrid grid)
 formatGrid :: Grid -> String
 formatGrid lines = unlines lines 
 
-findWord :: Grid -> String -> Bool
+findWord :: Grid -> String -> Maybe String
 -- For every line in grid, findWordInLine returns whether a word exists horizontally, and then returns
 -- a boolean value. If True is returned at least once, `or` will return True.
 findWord grid word = 
   -- Also include the lines of the grid in reverse, so we can search the lines backwards horizontally.
   let lines = grid ++ (map reverse grid)
-  in or ( map (findWordInLine word) lines)
+      found = or ( map (findWordInLine word) lines)
+  in if found then Just word else Nothing
+
+-- Finds the words that are in the grid by returning a list of Maybes and returns only the ones that return Just
+--findWords :: Grid -> [String] -> [Bool]
+findWords grid words = 
+  let foundWords = map (findWord grid) words
+  in catMaybes foundWords
 
 -- isInfixOf finds if word is contained in line.
 -- Example: map (findWorldInLine "HASKELL") grid
