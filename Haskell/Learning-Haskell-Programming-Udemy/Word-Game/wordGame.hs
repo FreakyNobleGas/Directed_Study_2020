@@ -14,10 +14,11 @@ module WordGameLib
       outputGrid,
       findWord,
       findWords,
+      skew,
       findWordInLine
     ) where 
 
-import Data.List (isInfixOf)
+import Data.List (isInfixOf, transpose)
 import Data.Maybe (catMaybes)
 
 type Grid = [String]
@@ -31,12 +32,27 @@ outputGrid grid = putStrLn (formatGrid grid)
 formatGrid :: Grid -> String
 formatGrid lines = unlines lines 
 
-findWord :: Grid -> String -> Maybe String
+-- Combines the horizontal and vertical lines, then concatenates the reverse of each of these lines
+getLines grid = 
+  let horizontal = grid
+      vertical = transpose grid
+      lines = horizontal ++ vertical
+  in lines ++ (map reverse lines)
+
+-- Recursive function
+skew :: Grid -> Grid
+-- Base Case
+skew [] = []
+-- Do not skew first line
+skew (l:ls) = l : skew (map indent ls)
+  where indent line = '_' : line
+
 -- For every line in grid, findWordInLine returns whether a word exists horizontally, and then returns
 -- a boolean value. If True is returned at least once, `or` will return True.
+findWord :: Grid -> String -> Maybe String
 findWord grid word = 
   -- Also include the lines of the grid in reverse, so we can search the lines backwards horizontally.
-  let lines = grid ++ (map reverse grid)
+  let lines = getLines grid
       found = or ( map (findWordInLine word) lines)
   in if found then Just word else Nothing
 
