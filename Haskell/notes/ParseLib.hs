@@ -3,12 +3,13 @@
 -- I have added a module declaration so it can be imported by other files.
 --
 
-module Parse
+module ParseLib
 ( 
     simpleParse,
     betterParse,
     identity,
     parse,
+    Parse,
     modifyOffset,
     getState,
     putState,
