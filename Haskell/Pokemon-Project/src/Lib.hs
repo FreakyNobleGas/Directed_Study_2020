@@ -5,6 +5,16 @@
 --
 ----------------------------------------------------------------------------
 
+module Lib
+    ( 
+    testing,
+    findPokeType,
+    generatePokemon,
+    generateAllPokemon,
+    parseComma,
+    calculateEffectiveness
+    ) where
+
 import System.IO
 import Data.List (lines)
 import Data.List.Split
@@ -41,6 +51,7 @@ type PokemonDict = [Pokemon]
 
 test :: PokemonDict
 test = [bulbasaur, charmander]
+
 --
 -- Example of a Pokemon Data Type declarations.
 --
@@ -68,13 +79,12 @@ testing = [("test", 2, Grass)]
 --findPokeType :: String -> PokeType
 --findPokeType p = 
 
-
 --generatePokemon :: [String] -> Pokemon
 --generatePokemon (x:y:z) = Pokemon {x , y , z} 
 generatePokemon :: [String] -> (String, Int, String)
 generatePokemon p = 
-    let name     = p !! 0
-        index    = p !! 1 
+    let name = p !! 0
+        index = p !! 1 
         pokeType = p !! 2
     in (name, (decimalStringToInt index), pokeType)
 
@@ -90,24 +100,6 @@ generateAllPokemon p = map generatePokemon p
 --
 parseComma :: [String] -> [[String]]
 parseComma p = map (splitOn ",") p
-
---
--- Main Driver
---
-main :: IO()
-main = do 
-  -- Lazy I/O
-  contents <- readFile "listOfPokemon.csv"
-
-  -- Convert String to [String]
-  let a = lines contents
-
-  -- See if IO [String] can be passed to 'pure' function
-  let b = parseComma a
-
-  let c = generateAllPokemon b
-
-  print c
 
 --
 -- All 1st Generation Pokemon Types
