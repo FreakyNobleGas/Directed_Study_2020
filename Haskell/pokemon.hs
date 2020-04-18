@@ -65,23 +65,50 @@ squirtle = Pokemon {
 testing :: [(String, Int, PokeType)]
 testing = [("test", 2, Grass)]
 
---findPokeType :: String -> PokeType
---findPokeType p = 
+--
+-- All 1st Generation Pokemon Types
+--
+data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
+                 Fighting | Poison | Ground | Flying | Psychic |
+                 Bug | Rock | Ghost | Dragon | Dark | Steel | Fairy
+                deriving (Eq, Ord, Show, Read, Bounded, Enum)
+
+findPokeType :: String -> PokeType
+findPokeType p = case p of
+                      "Normal"   -> Normal
+                      "Fire"     -> Fire
+                      "Water"    -> Water
+                      "Electric" -> Electric
+                      "Grass"    -> Grass
+                      "Ice"      -> Ice
+                      "Fighting" -> Fighting
+                      "Poison"   -> Poison
+                      "Ground"   -> Ground
+                      "Flying"   -> Flying
+                      "Psychic"  -> Psychic
+                      "Bug"      -> Bug
+                      "Rock"     -> Rock
+                      "Ghost"    -> Ghost
+                      "Dragon"   -> Dragon
+                      "Dark"     -> Dark
+                      "Steel"    -> Steel
+                      "Fairy"    -> Fairy
+                      _          -> error "PokeType does not exist!"
 
 
 --generatePokemon :: [String] -> Pokemon
 --generatePokemon (x:y:z) = Pokemon {x , y , z} 
-generatePokemon :: [String] -> (String, Int, String)
+generatePokemon :: [String] -> (String, Int, PokeType)
 generatePokemon p = 
     let name     = p !! 0
         index    = p !! 1 
         pokeType = p !! 2
-    in (name, (decimalStringToInt index), pokeType)
+    in (name, (decimalStringToInt index), (findPokeType pokeType))
 
 --generateAllPokemon :: [[String]] -> PokemonDict
 --generateAllPokemon p = let a = PokemonDict 
 --                       in map generatePokemon p
-generateAllPokemon :: [[String]] -> [(String, Int, String)]
+generateAllPokemon :: [[String]] -> [(String, Int, PokeType)]
 generateAllPokemon p = map generatePokemon p
 
 --
@@ -109,13 +136,6 @@ main = do
 
   print c
 
---
--- All 1st Generation Pokemon Types
---
-data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
-                 Fighting | Poison | Ground | Flying | Psychic |
-                 Bug | Rock | Ghost | Dragon | Dark | Steel
-                deriving (Eq, Ord, Show, Read, Bounded, Enum)
 
 --
 -- Declare each type of effectiveness
@@ -137,6 +157,9 @@ instance Show Effectiveness where
 --
 -- Example Usage: calculateEffectiveness (getType squirtle) (getType bulbasaur)
 calculateEffectiveness :: PokeType -> PokeType -> Effectiveness
+
+-- TODO: Add Fairy Type
+calculateEffectiveness Fairy _ = error "TODO: Add Fairy Type!"
 
 -- Normal Type
 calculateEffectiveness Normal Rock = NotVeryEffective
