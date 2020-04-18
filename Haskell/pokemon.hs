@@ -103,8 +103,8 @@ findPokeType p = case p of
 --
 generatePokemonDetails :: [String] -> (String, Int, PokeType)
 generatePokemonDetails p = 
-    let name     = p !! 0
-        index    = p !! 1 
+    let name     = p !! 1
+        index    = p !! 0 
         pokeType = p !! 2
     in (name, (decimalStringToInt index), (findPokeType pokeType))
 
