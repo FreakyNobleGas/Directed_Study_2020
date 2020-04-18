@@ -8,6 +8,7 @@
 import System.IO
 import Data.List (lines)
 import Data.List.Split
+import Text.XML.HXT.DOM.Util
 
 --
 -- This class allows each unique Pokemon to access it's various traits
@@ -61,15 +62,18 @@ squirtle = Pokemon {
     pokeType = Water
 }
 
+testing :: [(String, Int, PokeType)]
+testing = [("test", 2, Grass)]
+
 --generatePokemon :: [String] -> Pokemon
 --generatePokemon (x:y:z) = Pokemon {x , y , z} 
-generatePokemon :: [String] -> String
-generatePokemon p = unwords p
+generatePokemon :: [String] -> (String, Int, String)
+generatePokemon p = (p !! 0, (decimalStringToInt (p !! 1)), p !! 2)
 
 --generateAllPokemon :: [[String]] -> PokemonDict
 --generateAllPokemon p = let a = PokemonDict 
 --                       in map generatePokemon p
-generateAllPokemon :: [[String]] -> [String]
+generateAllPokemon :: [[String]] -> [(String, Int, String)]
 generateAllPokemon p = map generatePokemon p
 
 --
