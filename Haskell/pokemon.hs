@@ -73,6 +73,9 @@ data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
                  Bug | Rock | Ghost | Dragon | Dark | Steel | Fairy
                 deriving (Eq, Ord, Show, Read, Bounded, Enum)
 
+--
+-- Match a string to it's Poketype
+--
 findPokeType :: String -> PokeType
 findPokeType p = case p of
                       "Normal"   -> Normal
@@ -95,7 +98,9 @@ findPokeType p = case p of
                       "Fairy"    -> Fairy
                       _          -> error "PokeType does not exist!"
 
-
+--
+-- Convert list of strings to useable data so that we can create a Pokemon object
+--
 generatePokemonDetails :: [String] -> (String, Int, PokeType)
 generatePokemonDetails p = 
     let name     = p !! 0
@@ -103,25 +108,34 @@ generatePokemonDetails p =
         pokeType = p !! 2
     in (name, (decimalStringToInt index), (findPokeType pokeType))
 
+--
+-- Construct a new Pokemon object
+--
 generatePokemon :: (String, Int, PokeType) -> Pokemon
-generatePokemon (x,y,z) = 
-    let newname     = x
-        newindex    = y 
-        newpokeType = z
-    in Pokemon {name = newname, index = newindex, pokeType = newpokeType}
+generatePokemon (newName, newIndex, newPokeType) = 
+    Pokemon {name = newName, index = newIndex, pokeType = newPokeType}
 
+--
+-- Go through each of the Pokemon strings and resolve strings into their appropriate type
+-- and return a list of Pokemon objects
+--
 generateAllPokemon :: [[String]] -> PokemonDict
 generateAllPokemon p = 
     let all = map generatePokemonDetails p
     in map generatePokemon all
                     
-
 --
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
 -- an array with each Pokemon's characteristics seperated by a comma.
 --
 parseComma :: [String] -> [[String]]
 parseComma p = map (splitOn ",") p
+
+--
+-- Print each Pokemon individually
+--
+printEachPokemon :: PokemonDict -> IO()
+printEachPokemon p = mapM_ print p
 
 --
 -- Main Driver
@@ -139,7 +153,9 @@ main = do
 
   let c = generateAllPokemon b
 
-  print c
+  printEachPokemon c
+
+  print "Done!"
 
 
 --
