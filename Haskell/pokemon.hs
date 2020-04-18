@@ -96,20 +96,25 @@ findPokeType p = case p of
                       _          -> error "PokeType does not exist!"
 
 
---generatePokemon :: [String] -> Pokemon
---generatePokemon (x:y:z) = Pokemon {x , y , z} 
-generatePokemon :: [String] -> (String, Int, PokeType)
-generatePokemon p = 
+generatePokemonDetails :: [String] -> (String, Int, PokeType)
+generatePokemonDetails p = 
     let name     = p !! 0
         index    = p !! 1 
         pokeType = p !! 2
     in (name, (decimalStringToInt index), (findPokeType pokeType))
 
---generateAllPokemon :: [[String]] -> PokemonDict
---generateAllPokemon p = let a = PokemonDict 
---                       in map generatePokemon p
-generateAllPokemon :: [[String]] -> [(String, Int, PokeType)]
-generateAllPokemon p = map generatePokemon p
+generatePokemon :: (String, Int, PokeType) -> Pokemon
+generatePokemon (x,y,z) = 
+    let newname     = x
+        newindex    = y 
+        newpokeType = z
+    in Pokemon {name = newname, index = newindex, pokeType = newpokeType}
+
+generateAllPokemon :: [[String]] -> PokemonDict
+generateAllPokemon p = 
+    let all = map generatePokemonDetails p
+    in map generatePokemon all
+                    
 
 --
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
