@@ -8,6 +8,7 @@
 import System.IO
 import Data.List (lines)
 import Data.List.Split
+
 --
 -- This class allows each unique Pokemon to access it's various traits
 -- and/or set them
@@ -33,8 +34,12 @@ data Pokemon = Pokemon {
     name :: String,
     index :: Int,
     pokeType :: PokeType
-}
+} deriving (Show)
 
+type PokeDict = [Pokemon]
+
+test :: PokeDict
+test = [bulbasaur, charmander]
 --
 -- Example of a Pokemon Data Type declarations.
 --
@@ -56,25 +61,7 @@ squirtle = Pokemon {
     pokeType = Water
 }
 
---TODO: Create Parser for Pokemon list
---parsePokemonList :: [a] -> [Pokemon]
---parsePokemonList (x:xs)
-
---oneByOne :: [IO [String]] -> IO [String]
---oneByOne (x:xs) = x
---oneByOne :: IO [String] -> [IO ()]
---oneByOne p = map print p
-
-{--
-oneByOne :: IO [String] -> IO [String]
-oneByOne x = x
-
-parsePokemonList :: IO [String]
---parsePokemonList = let p = allPokemon in oneByOne p
-parsePokemonList = let p = allPokemon in oneByOne p
-    --handle <- openFile "ListOfPokemon.csv" ReadMode
-    --contents <- hGetContents handle
---}
+--let dict = [bulbasaur, charmander, squirtle]
 
 --
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
@@ -83,7 +70,10 @@ parsePokemonList = let p = allPokemon in oneByOne p
 parseComma :: [String] -> [[String]]
 parseComma p = map (splitOn ",") p
 
-main :: IO String
+--
+-- Main Driver
+--
+main :: IO()
 main = do 
   -- Lazy I/O
   contents <- readFile "listOfPokemon.csv"
@@ -95,8 +85,6 @@ main = do
   let b = parseComma a
   
   print b
-  -- This return statement still returns a IO String
-  return contents
 
 --
 -- All 1st Generation Pokemon Types
