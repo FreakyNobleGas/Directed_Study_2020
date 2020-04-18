@@ -36,9 +36,9 @@ data Pokemon = Pokemon {
     pokeType :: PokeType
 } deriving (Show)
 
-type PokeDict = [Pokemon]
+type PokemonDict = [Pokemon]
 
-test :: PokeDict
+test :: PokemonDict
 test = [bulbasaur, charmander]
 --
 -- Example of a Pokemon Data Type declarations.
@@ -61,7 +61,16 @@ squirtle = Pokemon {
     pokeType = Water
 }
 
---let dict = [bulbasaur, charmander, squirtle]
+--generatePokemon :: [String] -> Pokemon
+--generatePokemon (x:y:z) = Pokemon {x , y , z} 
+generatePokemon :: [String] -> String
+generatePokemon p = unwords p
+
+--generateAllPokemon :: [[String]] -> PokemonDict
+--generateAllPokemon p = let a = PokemonDict 
+--                       in map generatePokemon p
+generateAllPokemon :: [[String]] -> [String]
+generateAllPokemon p = map generatePokemon p
 
 --
 -- Function that opens a file stream to read in data from "ListOfPokemon.csv" into
@@ -80,11 +89,13 @@ main = do
 
   -- Convert String to [String]
   let a = lines contents
-  
+
   -- See if IO [String] can be passed to 'pure' function
   let b = parseComma a
-  
-  print b
+
+  let c = generateAllPokemon b
+
+  print c
 
 --
 -- All 1st Generation Pokemon Types
