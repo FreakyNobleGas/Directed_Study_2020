@@ -14,19 +14,19 @@ import Text.XML.HXT.DOM.Util
 -- This class allows each unique Pokemon to access it's various traits
 -- and/or set them
 --
-class UniquePokemon p where
-    getType :: p -> PokeType
+class UniquePokemon p where    
     getName :: p -> String
     getIndex :: p -> Int 
+    getType :: p -> PokeType
 
 --
 -- Definition of methods defined in UniquePokemon class that retrieve information
 -- about a specific Pokemon
 --
-instance UniquePokemon Pokemon where
-    getType p = pokeType p
+instance UniquePokemon Pokemon where    
     getName p = name p
     getIndex p = index p
+    getType p = pokeType p
 
 --
 -- Pokemon Data Type
@@ -98,6 +98,10 @@ findPokeType p = case p of
                       "Fairy"    -> Fairy
                       _          -> error "PokeType does not exist!"
 
+filterByType :: PokemonDict -> PokeType -> PokemonDict
+filterByType dict t = filter determineType dict 
+    where determineType p = t == (getType p)
+                                 
 --
 -- Convert list of strings to useable data so that we can create a Pokemon object
 --
@@ -137,6 +141,7 @@ parseComma p = map (splitOn ",") p
 printEachPokemon :: PokemonDict -> IO()
 printEachPokemon p = mapM_ print p
 
+
 --
 -- Main Driver
 --
@@ -144,16 +149,21 @@ main :: IO()
 main = do 
   -- Lazy I/O
   contents <- readFile "listOfPokemon.csv"
+  
+  -- Composing functions to generate the list of all pokemon objects
+  let allPokemon = (generateAllPokemon . parseComma . lines) contents
+  
+  print "Please choose a number from below: "
+  print "1) Print all Pokemon"
+  print "2) Filter by type"
 
-  -- Convert String to [String]
-  let a = lines contents
+  optionSelected <- getChar
 
-  -- See if IO [String] can be passed to 'pure' function
-  let b = parseComma a
-
-  let c = generateAllPokemon b
-
-  printEachPokemon c
+  case optionSelected of
+      '1' -> printEachPokemon allPokemon
+      '2' -> printEachPokemon (filterByType allPokemon Grass)
+      _   -> error "Invalid menu option! Please choose a number from the menu."
+  
 
   print "Done!"
 

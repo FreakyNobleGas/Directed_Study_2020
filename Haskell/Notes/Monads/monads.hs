@@ -67,48 +67,44 @@
     - "The Foo monad" is a type called Foo and it's an instance of Monad.
     - An "action" is another name for a monadic value, such as the side effect from the IO monad.
 
-    
+    The Maybe Monad is probably the simplest instance of Monad
+
+    instance Monad Maybe where
+    Just x >>= k  =  k x
+    Nothing >>= _ =  Nothing
+
+    Just _ >> k   =  k
+    Nothing >> _  =  Nothing
+
+    return x      =  Just x
+
+    fail _        =  Nothing
 -}
 
-module Logger
-    (
-      Logger
-    , Log
-    , runLogger
-    , record
-    ) where
+{-
+-- Example of using Maybe as a Monad
+import qualified Data.Map as M
 
-import Control.Applicative
-import Control.Monad (liftM, ap)
+type PersonName = String
+type PhoneNumber = String
+type BillingAddress = String
+data MobileCarrier = Honest_Bobs_Phone_Network
+                   | Morrisas_Marvelous_Mobiles
+                   | Petes_Plutocratic_Phones
+                     deriving (Eq, Ord)
 
-type Log = [String]
+findCarrierBillingAddress :: PersonName
+                          -> M.Map PersonName PhoneNumber
+                          -> M.Map PhoneNumber MobileCarrier
+                          -> M.Map MobileCarrier BillingAddress
+                          -> Maybe BillingAddress
 
-newtype Logger a = Logger { execLogger :: (a, Log) }
+variation1 person phoneMap carrierMap addressMap =
+    case M.lookup person phoneMap of
+      Nothing -> Nothing
+      Just number ->
+          case M.lookup number carrierMap of
+            Nothing -> Nothing
+            Just carrier -> M.lookup carrier addressMap
 
-runLogger :: Logger a -> (a, Log)
-runLogger = execLogger
-
-record :: String -> Logger ()
-record s = Logger ((), [s])
-
-instance Monad Logger where
-    return a = Logger (a, [])
-
-instance Functor Logger where
-    fmap = liftM
-
-instance Applicative Logger where
-    pure a = Logger (a, [])
-    (<*>) = ap
-
---(>>=) :: Logger a -> (a -> Logger b) -> Logger b
-m >>= k = let 
-            (a, w) = execLogger m
-            n      = k a
-            (b, x) = execLogger n
-            in Logger (b, w ++ x)
-
--- Making a logger
---globToRegex :: String -> Logger String
-
-
+-}
