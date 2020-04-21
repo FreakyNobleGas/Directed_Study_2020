@@ -38,9 +38,6 @@ data Pokemon = Pokemon {
 } deriving (Show)
 
 type PokemonDict = [Pokemon]
-
-test :: PokemonDict
-test = [bulbasaur, charmander]
 --
 -- Example of a Pokemon Data Type declarations.
 --
@@ -98,9 +95,20 @@ findPokeType p = case p of
                       "Fairy"    -> Fairy
                       _          -> error "PokeType does not exist!"
 
+--
+-- Helper functions to filter based on a Pokemon's information
+--
 filterByType :: PokemonDict -> PokeType -> PokemonDict
 filterByType dict t = filter determineType dict 
     where determineType p = t == (getType p)
+
+filterByName :: PokemonDict -> String -> PokemonDict
+filterByName dict n = filter determineName dict 
+    where determineName p = n == (getName p)
+
+filterByIndex :: PokemonDict -> Int -> PokemonDict
+filterByIndex dict i = filter determineIndex dict 
+    where determineIndex p = i == (getIndex p)
                                  
 --
 -- Convert list of strings to useable data so that we can create a Pokemon object
@@ -141,6 +149,13 @@ parseComma p = map (splitOn ",") p
 printEachPokemon :: PokemonDict -> IO()
 printEachPokemon p = mapM_ print p
 
+pokeTypeString :: [String]
+pokeTypeString = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice",
+                  "Fighting", "Poison", "Ground", "Flying", "Psychic",
+                  "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"]
+
+printEachPokemonType :: IO()
+printEachPokemonType = mapM_ putStrLn pokeTypeString
 
 --
 -- Main Driver
@@ -150,22 +165,50 @@ main = do
   -- Lazy I/O
   contents <- readFile "listOfPokemon.csv"
   
-  -- Composing functions to generate the list of all pokemon objects
+  -- Composing functions to generate the list of all pokemon objects from CSV file
   let allPokemon = (generateAllPokemon . parseComma . lines) contents
   
-  print "Please choose a number from below: "
-  print "1) Print all Pokemon"
-  print "2) Filter by type"
-
+  putStrLn "Please choose a number from below: "
+  putStrLn "1) Print all Pokemon"
+  putStrLn "2) Print all Pokemon types"
+  putStrLn "3) Filter by type"
+  putStrLn "4) Filter by index"
+  putStrLn "5) Filter by name"
+  
   optionSelected <- getChar
+  flushLine <- getLine
 
   case optionSelected of
       '1' -> printEachPokemon allPokemon
-      '2' -> printEachPokemon (filterByType allPokemon Grass)
+
+      '2' -> printEachPokemonType
+
+      '3' -> do 
+          putStrLn "Please enter a Pokemon Type : "
+          getTypeLine <- getLine
+          let t = findPokeType getTypeLine
+          printEachPokemon $ filterByType allPokemon t
+
+      '4' -> do
+          putStrLn "Please enter a Pokemon Index : "
+          getIndexLine <- getLine
+          let l = filterByIndex allPokemon (decimalStringToInt getIndexLine)
+          case l of
+              [] -> putStrLn "No Pokemon found!"
+              _ -> printEachPokemon l
+
+      '5' -> do
+          putStrLn "Please enter a Pokemon Name : "
+          getNameLine <- getLine
+          let l = filterByName allPokemon getNameLine
+          case l of
+              [] -> putStrLn "No Pokemon found!"
+              _ -> printEachPokemon l
+
       _   -> error "Invalid menu option! Please choose a number from the menu."
   
 
-  print "Done!"
+  putStrLn "Program Finished"
 
 
 --
