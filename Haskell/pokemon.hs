@@ -10,6 +10,7 @@ import Data.List (lines)
 import Data.List.Split
 import Text.XML.HXT.DOM.Util
 
+---------------------------- Classes and Data Types ------------------------
 --
 -- This class allows each unique Pokemon to access it's various traits
 -- and/or set them
@@ -37,30 +38,10 @@ data Pokemon = Pokemon {
     pokeType :: PokeType
 } deriving (Show)
 
+--
+-- Alias for List of Pokemon
+--
 type PokemonDict = [Pokemon]
---
--- Example of a Pokemon Data Type declarations.
---
-bulbasaur = Pokemon {
-    name = "Bulbasaur",
-    index = 1,
-    pokeType = Grass
-}
-
-charmander = Pokemon {
-    name = "Charmander",
-    index = 4,
-    pokeType = Fire
-}
-
-squirtle = Pokemon {
-    name = "Squirtle",
-    index = 7,
-    pokeType = Water
-}
-
-testing :: [(String, Int, PokeType)]
-testing = [("test", 2, Grass)]
 
 --
 -- All 1st Generation Pokemon Types
@@ -70,6 +51,21 @@ data PokeType = Normal | Fire | Water | Electric | Grass | Ice |
                  Bug | Rock | Ghost | Dragon | Dark | Steel | Fairy
                 deriving (Eq, Ord, Show, Read, Bounded, Enum)
 
+--
+-- Declare each type of effectiveness
+--
+data Effectiveness = SuperEffective | NormalEffectiveness | NotVeryEffective | NoEffect
+
+--
+-- Define show for various effectiveness
+--
+instance Show Effectiveness where
+    show SuperEffective = "Super Effective!"
+    show NormalEffectiveness = "Normal Effectiveness"
+    show NotVeryEffective = "Not Very Effective!"
+    show NoEffect = "No Effect"
+
+---------------------------- Helper Functions ------------------------------
 --
 -- Match a string to it's Poketype
 --
@@ -96,7 +92,7 @@ findPokeType p = case p of
                       _          -> error "PokeType does not exist!"
 
 --
--- Helper functions to filter based on a Pokemon's information
+-- Filter list of Pokemon based on Pokemon's information
 --
 filterByType :: PokemonDict -> PokeType -> PokemonDict
 filterByType dict t = filter determineType dict 
@@ -149,6 +145,9 @@ parseComma p = map (splitOn ",") p
 printEachPokemon :: PokemonDict -> IO()
 printEachPokemon p = mapM_ print p
 
+--
+-- Print each PokeType
+--
 pokeTypeString :: [String]
 pokeTypeString = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice",
                   "Fighting", "Poison", "Ground", "Flying", "Psychic",
@@ -157,8 +156,9 @@ pokeTypeString = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice",
 printEachPokemonType :: IO()
 printEachPokemonType = mapM_ putStrLn pokeTypeString
 
+---------------------------- Main Driver -----------------------------------
 --
--- Main Driver
+--
 --
 main :: IO()
 main = do 
@@ -168,6 +168,7 @@ main = do
   -- Composing functions to generate the list of all pokemon objects from CSV file
   let allPokemon = (generateAllPokemon . parseComma . lines) contents
   
+  -- Menu
   putStrLn "Please choose a number from below: "
   putStrLn "1) Print all Pokemon"
   putStrLn "2) Print all Pokemon types"
@@ -178,6 +179,7 @@ main = do
   optionSelected <- getChar
   flushLine <- getLine
 
+  -- Perform logic based on user's decision from menu
   case optionSelected of
       '1' -> printEachPokemon allPokemon
 
@@ -210,21 +212,7 @@ main = do
 
   putStrLn "Program Finished"
 
-
---
--- Declare each type of effectiveness
---
-data Effectiveness = SuperEffective | NormalEffectiveness | NotVeryEffective | NoEffect
-
---
--- Define show for various effectiveness
---
-instance Show Effectiveness where
-    show SuperEffective = "Super Effective!"
-    show NormalEffectiveness = "Normal Effectiveness"
-    show NotVeryEffective = "Not Very Effective!"
-    show NoEffect = "No Effect"
-
+---------------------------- Calculate Effectiveness -----------------------
 --
 -- Function to calculate the effectiveness of a specific Pokemon against another defending Pokemon
 -- based on it's type.
