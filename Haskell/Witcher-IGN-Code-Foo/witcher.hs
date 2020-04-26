@@ -8,6 +8,7 @@
 import System.IO
 import Data.List (lines)
 import Data.List.Split
+import Data.Graph
 import Text.XML.HXT.DOM.Util
 
 ---------------------------- Classes and Data Types ------------------------
@@ -40,10 +41,18 @@ data Item = Item {
 -- Type synonym's for each type of armor to make code more readable
 --
 type Everything = [Item]
+type Helmet     = [Item]
 type Chest      = [Item]
 type Leggings   = [Item]
-type Helmet     = [Item]
 type Boots      = [Item]
+
+data Armory = Armory {
+    everything :: Everything,
+    helmet     :: Helmet,
+    chest      :: Chest,
+    leggings   :: Leggings,    
+    boots      :: Boots
+} deriving (Show)
 
 ---------------------------- Helper Functions ------------------------------
 --
@@ -62,15 +71,25 @@ generateItem i =
         newName        = i !! 1
         newCost        = decimalStringToInt $ i !! 2
         newArmorValue  = decimalStringToInt $ i !! 3
-    in Item {armorType = newArmorType, name = newName, cost =  newCost, armorValue =  newArmorValue}
+    in Item {armorType = newArmorType, name = newName, cost = newCost, armorValue = newArmorValue}
 
 --
 -- Generate all items from contents in CSV file
 --
 generateItems :: [[String]] -> [Item]
-generateItems armory = map generateItem armory
+generateItems all = map generateItem all
 
 printAllItems i = mapM_ print i
+
+findArmorType :: Item -> Armory -> Armory
+findArmorType i armory = case (getType i) of
+                              "Helmet"   -> helmet armory i
+                              "Chest"    -> chest armory i
+                              "Leggings" -> leggings armory i
+                              "Boots"    -> boots armory i 
+
+fillArmory :: Armory -> Everything -> Armory
+fillArmory armory allItems = map (findArmorType armory) allItems 
                             
 ---------------------------- Main Driver -----------------------------------
 --
@@ -82,8 +101,18 @@ main = do
 
     -- Convert all contents from file into an array of Items so that it can be used
     -- more efficiently
-    let everything = (generateItems . parseComma . tail . lines) contents
+    let allItems = (generateItems . parseComma . tail . lines) contents
+    
+    let emptyArmory = Armory {
+                everything = [],
+                helmet = [],
+                chest = [],
+                leggings = [],
+                boots = [] 
+                }
+    
+    let filledArmory = fillArmory emptyArmory allItems
 
-    printAllItems everything
-
+    printAllItems allItems
+    print filledArmory
     putStrLn "Program Finished!"
