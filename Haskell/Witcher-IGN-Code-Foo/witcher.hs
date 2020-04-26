@@ -140,20 +140,16 @@ generateListOfItems selectedItems helmets chests leggings boots extraItems = [(h
                                                                              (boots    !! fromMaybe 0 (lookup "boots" selectedItems)),
                                                                              (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))]
 
---updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
-updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
-updateInventory selectedItems helmets chests leggings boots extraItems = 
+--calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
+calculateBestItem selectedItems helmets chests leggings boots extraItems = 
     let newList = map incrementVal selectedItems
     in (head . reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
         where incrementVal i = (fst i, (snd i) + 1)
 
-calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
---calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
-calculateResult cost selectedItems helmets chests leggings boots extraItems = 
-    --if cost <= 300 
-    --then do selectedItems
-    --else do 
-    let newItem = updateInventory selectedItems helmets chests leggings boots extraItems
+updateSelectedItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+updateSelectedItems selectedItems helmets chests leggings boots extraItems = 
+    let newItem = calculateBestItem selectedItems helmets chests leggings boots extraItems
     in if (getExtra newItem)
        then [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
              ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
@@ -161,7 +157,51 @@ calculateResult cost selectedItems helmets chests leggings boots extraItems =
              ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
              ("extraItem",  (fromMaybe 0 (lookup "extraItem" selectedItems)) + 1)
             ] 
-        else selectedItems
+        else case (getType newItem) of
+            "Helmet" -> [("helmet", (fromMaybe 0 (lookup "helmet" selectedItems)) + 1),
+                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
+                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
+                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
+                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+                        ]
+            "Chest" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
+                         ("chest",  (fromMaybe 0 (lookup "chest" selectedItems)) + 1),
+                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
+                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
+                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+                        ]
+            "Leggings" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
+                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
+                         ("leggings",  (fromMaybe 0 (lookup "leggings" selectedItems)) + 1),
+                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
+                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+                        ]
+            "Boots" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
+                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
+                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
+                         ("boots",  (fromMaybe 0 (lookup "boots" selectedItems)) + 1),
+                         ("extraItem", fromMaybe 0 (lookup "extraItem" selectedItems))
+                        ]
+            _ -> error "Could not find type!"
+
+calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+--calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
+calculateResult cost selectedItems helmets chests leggings boots extraItems = 
+    if cost <= 300 
+    then do selectedItems
+    else let updatedItems = updateSelectedItems selectedItems helmets chests leggings boots extraItems
+         in calculateResult (calculateCost (helmets  !! fromMaybe 0 (lookup "helmet" updatedItems))
+                            (chests   !! fromMaybe 0 (lookup "chest" updatedItems))
+                            (leggings !! fromMaybe 0 (lookup "leggings" updatedItems))
+                            (boots    !! fromMaybe 0 (lookup "boots" updatedItems))
+                            (extraItems !! fromMaybe 0 (lookup "extraItem" updatedItems)))
+                            updatedItems
+                            helmets
+                            chests
+                            leggings
+                            boots
+                            extraItems
+    
 
 
 ---------------------------- Main Driver -----------------------------------
@@ -190,24 +230,34 @@ main = do
                              (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
                              (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
     
-    let result = calculateResult cost
-                                 selectedItems
-                                 helmets
-                                 chests
-                                 leggings
-                                 boots
-                                 extraItems
-                {-                             
+    let result = generateListOfItems (calculateResult cost
+                                                     selectedItems
+                                                     helmets
+                                                     chests
+                                                     leggings
+                                                     boots
+                                                     extraItems)
+                                     helmets
+                                     chests
+                                     leggings
+                                     boots
+                                     extraItems
+
+                                    {-                             
     calculateResult = do
                         if cost <= 300 
                         then do putStrLn "Found Result!" 
                         else putStrLn "Need to keep looking"
     -}
     putStrLn "---RESULT---"
-    --printAllItems result
-    print result
+    printAllItems result
+    --print result
     putStrLn "---COST---"
-    print cost
+    print (calculateCost (result !! 0)
+                         (result !! 1)
+                         (result !! 2)
+                         (result !! 3)
+                         (result !! 4))
     --print (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
     --print (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
     --print (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
