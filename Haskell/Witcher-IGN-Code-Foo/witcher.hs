@@ -40,19 +40,35 @@ data Item = Item {
 --
 -- Type synonym's for each type of armor to make code more readable
 --
+
 type Everything = [Item]
 type Helmet     = [Item]
 type Chest      = [Item]
 type Leggings   = [Item]
 type Boots      = [Item]
 
+
 data Armory = Armory {
-    everything :: Everything,
-    helmet     :: Helmet,
-    chest      :: Chest,
-    leggings   :: Leggings,    
-    boots      :: Boots
+    everything :: [Item],
+    helmet     :: [Item],
+    chest      :: [Item],
+    leggings   :: [Item],    
+    boots      :: [Item]
 } deriving (Show)
+
+class ArmoryClass i where
+    getEverything :: i -> [Item]
+
+instance ArmoryClass Armory where
+    getEverything i = everything i
+
+--class TempClass a i where
+--    addItem :: a -> i -> Armory
+    
+--instance TempClass Armory Item where
+
+--instance ItemClass ArmoryClass where
+
 
 ---------------------------- Helper Functions ------------------------------
 --
@@ -80,7 +96,7 @@ generateItems :: [[String]] -> [Item]
 generateItems all = map generateItem all
 
 printAllItems i = mapM_ print i
-
+{-
 findArmorType :: Item -> Armory -> Armory
 findArmorType i armory = case (getType i) of
                               "Helmet"   -> helmet armory i
@@ -90,7 +106,12 @@ findArmorType i armory = case (getType i) of
 
 fillArmory :: Armory -> Everything -> Armory
 fillArmory armory allItems = map (findArmorType armory) allItems 
-                            
+-}           
+
+sortByType :: [Item] -> String -> [Item]
+sortByType allItems armorType = filter isType allItems
+    where isType i = armorType == (getType i)
+
 ---------------------------- Main Driver -----------------------------------
 --
 -- Main Driver
@@ -103,6 +124,11 @@ main = do
     -- more efficiently
     let allItems = (generateItems . parseComma . tail . lines) contents
     
+    let helmets = sortByType allItems "Helmet"
+    let chests = sortByType allItems "Chest"
+    let leggings = sortByType allItems "Leggings"
+    let boots = sortByType allItems "Boots"
+
     let emptyArmory = Armory {
                 everything = [],
                 helmet = [],
@@ -110,9 +136,14 @@ main = do
                 leggings = [],
                 boots = [] 
                 }
-    
-    let filledArmory = fillArmory emptyArmory allItems
 
-    printAllItems allItems
-    print filledArmory
+    printAllItems helmets
+    print "------"
+    printAllItems chests
+    print "------"
+    printAllItems leggings
+    print "------"
+    printAllItems boots
+
+
     putStrLn "Program Finished!"
