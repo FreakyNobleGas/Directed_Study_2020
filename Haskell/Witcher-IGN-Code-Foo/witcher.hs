@@ -21,12 +21,14 @@ class ItemClass i where
     getName  :: i -> String
     getCost  :: i -> Int
     getValue :: i -> Int
+    getExtra :: i -> Bool
 
 instance ItemClass Item where
     getType  i = armorType i
     getName  i = name i
     getCost  i = cost i
     getValue i = armorValue i
+    getExtra i = extra i
 
 --
 -- Data type that holds information about each item
@@ -35,7 +37,8 @@ data Item = Item {
     armorType  :: String,
     name       :: String,
     cost       :: Int,
-    armorValue :: Int
+    armorValue :: Int,
+    extra      :: Bool
 } deriving (Show)
 
 --
@@ -87,7 +90,18 @@ generateItem i =
         newName        = i !! 1
         newCost        = decimalStringToInt $ i !! 2
         newArmorValue  = decimalStringToInt $ i !! 3
-    in Item {armorType = newArmorType, name = newName, cost = newCost, armorValue = newArmorValue}
+        newExtra       = False
+    in Item {armorType = newArmorType, name = newName, cost = newCost, armorValue = newArmorValue, extra = newExtra}
+
+changeToExtra :: [Item] -> [Item]
+changeToExtra allItems = map changeExtraBool allItems
+                            where changeExtraBool i = Item {
+                                armorType = getType i,
+                                name = getName i,
+                                cost = getCost i,
+                                armorValue = getValue i,
+                                extra = True
+                            }
 
 --
 -- Generate all items from contents in CSV file
@@ -95,6 +109,7 @@ generateItem i =
 generateItems :: [[String]] -> [Item]
 generateItems all = map generateItem all
 
+printAllItems :: [Item] -> IO()
 printAllItems i = mapM_ print i
 
 -- Function to compare two pieces of armor
@@ -118,17 +133,27 @@ calculateCost :: Item -> Item -> Item -> Item -> Item -> Int
 calculateCost helmet chest legging boot extraItem =
     (getCost helmet) + (getCost chest) + (getCost legging) + (getCost boot) + (getCost extraItem)
 
-updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+generateListOfItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
+generateListOfItems selectedItems helmets chests leggings boots extraItems = [(helmets  !! fromMaybe 0 (lookup "helmet" selectedItems)),
+                                                                             (chests   !! fromMaybe 0 (lookup "chest" selectedItems)),
+                                                                             (leggings !! fromMaybe 0 (lookup "leggings" selectedItems)),
+                                                                             (boots    !! fromMaybe 0 (lookup "boots" selectedItems)),
+                                                                             (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))]
+
+--updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
 updateInventory selectedItems helmets chests leggings boots extraItems = 
     let newList = map incrementVal selectedItems
-    in newList
+    in (reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
         where incrementVal i = (fst i, (snd i) + 1)
 
-calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+--calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
 calculateResult cost selectedItems helmets chests leggings boots extraItems = 
-    if cost <= 300 
-    then do selectedItems
-    else do updateInventory selectedItems helmets chests leggings boots extraItems        
+    --if cost <= 300 
+    --then do selectedItems
+    --else do 
+    updateInventory selectedItems helmets chests leggings boots extraItems        
 
 
 ---------------------------- Main Driver -----------------------------------
@@ -147,14 +172,15 @@ main = do
     let chests   = sortByType allItems "Chest"
     let leggings = sortByType allItems "Leggings"
     let boots    = sortByType allItems "Boots"
-
+    let extraItems = changeToExtra allItems
+    
     let selectedItems = [("helmet", 0), ("chest", 0), ("leggings", 0), ("boots", 0), ("extraItem", 0)]
 
     let cost = calculateCost (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
                              (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
                              (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
                              (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
-                             (allItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
+                             (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
     
     let result = calculateResult cost
                                  selectedItems
@@ -162,25 +188,16 @@ main = do
                                  chests
                                  leggings
                                  boots
-                                 allItems
+                                 extraItems
                 {-                             
     calculateResult = do
                         if cost <= 300 
                         then do putStrLn "Found Result!" 
                         else putStrLn "Need to keep looking"
     -}
-    print result
-    putStrLn "------"
-    printAllItems allItems
-    putStrLn "------"
-    printAllItems helmets
-    putStrLn "------"
-    printAllItems chests
-    putStrLn "------"
-    printAllItems leggings
-    putStrLn "------"
-    printAllItems boots
-    putStrLn "------"
+    putStrLn "---RESULT---"
+    printAllItems result
+    putStrLn "---COST---"
     print cost
     --print (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
     --print (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
