@@ -8,6 +8,7 @@
 import System.IO
 import Data.List (lines, sortBy)
 import Data.List.Split
+import Data.Maybe (mapMaybe, fromMaybe)
 import Data.Graph
 import Text.XML.HXT.DOM.Util
 
@@ -46,7 +47,6 @@ type Helmet     = [Item]
 type Chest      = [Item]
 type Leggings   = [Item]
 type Boots      = [Item]
-
 
 data Armory = Armory {
     everything :: [Item],
@@ -96,17 +96,6 @@ generateItems :: [[String]] -> [Item]
 generateItems all = map generateItem all
 
 printAllItems i = mapM_ print i
-{-
-findArmorType :: Item -> Armory -> Armory
-findArmorType i armory = case (getType i) of
-                              "Helmet"   -> helmet armory i
-                              "Chest"    -> chest armory i
-                              "Leggings" -> leggings armory i
-                              "Boots"    -> boots armory i 
-
-fillArmory :: Armory -> Everything -> Armory
-fillArmory armory allItems = map (findArmorType armory) allItems 
--}
 
 -- Function to compare two pieces of armor
 compareArmorValue x y
@@ -125,6 +114,23 @@ sortByType allItems armorType =
     in (reverse . sortByValue) newList
         where isType i = armorType == (getType i)
 
+calculateCost :: Item -> Item -> Item -> Item -> Item -> Int
+calculateCost helmet chest legging boot extraItem =
+    (getCost helmet) + (getCost chest) + (getCost legging) + (getCost boot) + (getCost extraItem)
+
+updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+updateInventory selectedItems helmets chests leggings boots extraItems = 
+    let newList = map incrementVal selectedItems
+    in newList
+        where incrementVal i = (fst i, (snd i) + 1)
+
+calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+calculateResult cost selectedItems helmets chests leggings boots extraItems = 
+    if cost <= 300 
+    then do selectedItems
+    else do updateInventory selectedItems helmets chests leggings boots extraItems        
+
+
 ---------------------------- Main Driver -----------------------------------
 --
 -- Main Driver
@@ -135,28 +141,51 @@ main = do
 
     -- Convert all contents from file into an array of Items so that it can be used
     -- more efficiently
-    let allItems = (generateItems . parseComma . tail . lines) contents
+    let allItems = (reverse . sortByValue . generateItems . parseComma . tail . lines) contents
     
     let helmets  = sortByType allItems "Helmet"
     let chests   = sortByType allItems "Chest"
     let leggings = sortByType allItems "Leggings"
     let boots    = sortByType allItems "Boots"
 
-    let emptyArmory = Armory {
-                everything = [],
-                helmet = [],
-                chest = [],
-                leggings = [],
-                boots = [] 
-                }
+    let selectedItems = [("helmet", 0), ("chest", 0), ("leggings", 0), ("boots", 0), ("extraItem", 0)]
 
+    let cost = calculateCost (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
+                             (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
+                             (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
+                             (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
+                             (allItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
+    
+    let result = calculateResult cost
+                                 selectedItems
+                                 helmets
+                                 chests
+                                 leggings
+                                 boots
+                                 allItems
+                {-                             
+    calculateResult = do
+                        if cost <= 300 
+                        then do putStrLn "Found Result!" 
+                        else putStrLn "Need to keep looking"
+    -}
+    print result
+    putStrLn "------"
+    printAllItems allItems
+    putStrLn "------"
     printAllItems helmets
-    print "------"
+    putStrLn "------"
     printAllItems chests
-    print "------"
+    putStrLn "------"
     printAllItems leggings
-    print "------"
+    putStrLn "------"
     printAllItems boots
-
+    putStrLn "------"
+    print cost
+    --print (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
+    --print (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
+    --print (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
+    --print (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
+    --print (allItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
 
     putStrLn "Program Finished!"
