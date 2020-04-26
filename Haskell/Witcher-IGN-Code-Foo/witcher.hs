@@ -44,7 +44,7 @@ data Item = Item {
 --
 -- Type synonym's for each type of armor to make code more readable
 --
-
+{-
 type Everything = [Item]
 type Helmet     = [Item]
 type Chest      = [Item]
@@ -64,14 +64,7 @@ class ArmoryClass i where
 
 instance ArmoryClass Armory where
     getEverything i = everything i
-
---class TempClass a i where
---    addItem :: a -> i -> Armory
-    
---instance TempClass Armory Item where
-
---instance ItemClass ArmoryClass where
-
+-}
 
 ---------------------------- Helper Functions ------------------------------
 --
@@ -133,12 +126,21 @@ calculateCost :: Item -> Item -> Item -> Item -> Item -> Int
 calculateCost helmet chest legging boot extraItem =
     (getCost helmet) + (getCost chest) + (getCost legging) + (getCost boot) + (getCost extraItem)
 
+itemLookUp :: String -> [Item] -> [(String, Int)] -> Item
+itemLookUp armorType items selectedItems = items !! fromMaybe 0 (lookup armorType selectedItems)
+
+updateTuple :: String -> [Item] -> Bool -> [(String, Int)] -> (String, Int)
+updateTuple armorType items increment selectedItems = 
+    if increment
+    then do (armorType,  (fromMaybe 0 (lookup armorType selectedItems)) + 1)
+    else do (armorType,  fromMaybe 0  (lookup armorType selectedItems))
+
 generateListOfItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
-generateListOfItems selectedItems helmets chests leggings boots extraItems = [(helmets  !! fromMaybe 0 (lookup "helmet" selectedItems)),
-                                                                             (chests   !! fromMaybe 0 (lookup "chest" selectedItems)),
-                                                                             (leggings !! fromMaybe 0 (lookup "leggings" selectedItems)),
-                                                                             (boots    !! fromMaybe 0 (lookup "boots" selectedItems)),
-                                                                             (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))]
+generateListOfItems selectedItems helmets chests leggings boots extraItems = [itemLookUp "helmet" helmets selectedItems,
+                                                                             itemLookUp "chest" chests selectedItems,
+                                                                             itemLookUp "leggings" leggings selectedItems,
+                                                                             itemLookUp "boots" boots selectedItems,
+                                                                             itemLookUp "extraItem" extraItems selectedItems]
 
 --calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
 calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
@@ -151,36 +153,41 @@ updateSelectedItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -
 updateSelectedItems selectedItems helmets chests leggings boots extraItems = 
     let newItem = calculateBestItem selectedItems helmets chests leggings boots extraItems
     in if (getExtra newItem)
-       then [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
-             ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
-             ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
-             ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
-             ("extraItem",  (fromMaybe 0 (lookup "extraItem" selectedItems)) + 1)
+       then  
+           [ updateTuple "helmet" helmets False selectedItems,
+             updateTuple "chest" chests False selectedItems,
+             updateTuple "leggings" leggings False selectedItems,
+             updateTuple "boots" boots False selectedItems,
+             updateTuple "extraItem" extraItems True selectedItems
             ] 
         else case (getType newItem) of
-            "Helmet" -> [("helmet", (fromMaybe 0 (lookup "helmet" selectedItems)) + 1),
-                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
-                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
-                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
-                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+            "Helmet" -> [
+                         updateTuple "helmet" helmets True selectedItems,
+                         updateTuple "chest" chests False selectedItems,
+                         updateTuple "leggings" leggings False selectedItems,
+                         updateTuple "boots" boots False selectedItems,
+                         updateTuple "extraItem" extraItems False selectedItems
                         ]
-            "Chest" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
-                         ("chest",  (fromMaybe 0 (lookup "chest" selectedItems)) + 1),
-                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
-                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
-                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+            "Chest" -> [
+                         updateTuple "helmet" helmets False selectedItems,
+                         updateTuple "chest" chests True selectedItems,
+                         updateTuple "leggings" leggings False selectedItems,
+                         updateTuple "boots" boots False selectedItems,
+                         updateTuple "extraItem" extraItems False selectedItems
                         ]
-            "Leggings" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
-                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
-                         ("leggings",  (fromMaybe 0 (lookup "leggings" selectedItems)) + 1),
-                         ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
-                         ("extraItem",  fromMaybe 0 (lookup "extraItem" selectedItems))
+            "Leggings" -> [
+                         updateTuple "helmet" helmets False selectedItems,
+                         updateTuple "chest" chests False selectedItems,
+                         updateTuple "leggings" leggings True selectedItems,
+                         updateTuple "boots" boots False selectedItems,
+                         updateTuple "extraItem" extraItems False selectedItems
                         ]
-            "Boots" -> [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
-                         ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
-                         ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
-                         ("boots",  (fromMaybe 0 (lookup "boots" selectedItems)) + 1),
-                         ("extraItem", fromMaybe 0 (lookup "extraItem" selectedItems))
+            "Boots" -> [
+                         updateTuple "helmet" helmets False selectedItems,
+                         updateTuple "chest" chests False selectedItems,
+                         updateTuple "leggings" leggings False selectedItems,
+                         updateTuple "boots" boots True selectedItems,
+                         updateTuple "extraItem" extraItems False selectedItems
                         ]
             _ -> error "Could not find type!"
 
@@ -190,11 +197,11 @@ calculateResult cost selectedItems helmets chests leggings boots extraItems =
     if cost <= 300 
     then do selectedItems
     else let updatedItems = updateSelectedItems selectedItems helmets chests leggings boots extraItems
-         in calculateResult (calculateCost (helmets  !! fromMaybe 0 (lookup "helmet" updatedItems))
-                            (chests   !! fromMaybe 0 (lookup "chest" updatedItems))
-                            (leggings !! fromMaybe 0 (lookup "leggings" updatedItems))
-                            (boots    !! fromMaybe 0 (lookup "boots" updatedItems))
-                            (extraItems !! fromMaybe 0 (lookup "extraItem" updatedItems)))
+         in calculateResult (calculateCost (itemLookUp "helmet" helmets updatedItems)
+                            (itemLookUp "chest" chests updatedItems)
+                            (itemLookUp "leggings" leggings updatedItems)
+                            (itemLookUp "boots" boots updatedItems)
+                            (itemLookUp "extraItem" extraItems updatedItems))
                             updatedItems
                             helmets
                             chests
@@ -202,8 +209,6 @@ calculateResult cost selectedItems helmets chests leggings boots extraItems =
                             boots
                             extraItems
     
-
-
 ---------------------------- Main Driver -----------------------------------
 --
 -- Main Driver
@@ -224,11 +229,11 @@ main = do
     
     let selectedItems = [("helmet", 0), ("chest", 0), ("leggings", 0), ("boots", 0), ("extraItem", 0)]
 
-    let cost = calculateCost (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
-                             (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
-                             (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
-                             (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
-                             (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
+    let cost = calculateCost (itemLookUp "helmet" helmets selectedItems)
+                             (itemLookUp "chest" chests selectedItems)
+                             (itemLookUp "leggings" leggings selectedItems)
+                             (itemLookUp "boots" boots selectedItems)
+                             (itemLookUp "extraItem" extraItems selectedItems)
     
     let result = generateListOfItems (calculateResult cost
                                                      selectedItems
@@ -243,25 +248,14 @@ main = do
                                      boots
                                      extraItems
 
-                                    {-                             
-    calculateResult = do
-                        if cost <= 300 
-                        then do putStrLn "Found Result!" 
-                        else putStrLn "Need to keep looking"
-    -}
     putStrLn "---RESULT---"
     printAllItems result
-    --print result
+   
     putStrLn "---COST---"
     print (calculateCost (result !! 0)
                          (result !! 1)
                          (result !! 2)
                          (result !! 3)
                          (result !! 4))
-    --print (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
-    --print (chests   !! fromMaybe 0 (lookup "chest" selectedItems))
-    --print (leggings !! fromMaybe 0 (lookup "leggings" selectedItems))
-    --print (boots    !! fromMaybe 0 (lookup "boots" selectedItems))
-    --print (allItems !! fromMaybe 0 (lookup "extraItem" selectedItems))
 
     putStrLn "Program Finished!"
