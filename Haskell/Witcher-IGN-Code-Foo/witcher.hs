@@ -6,7 +6,7 @@
 ----------------------------------------------------------------------------
 
 import System.IO
-import Data.List (lines)
+import Data.List (lines, sortBy)
 import Data.List.Split
 import Data.Graph
 import Text.XML.HXT.DOM.Util
@@ -106,11 +106,24 @@ findArmorType i armory = case (getType i) of
 
 fillArmory :: Armory -> Everything -> Armory
 fillArmory armory allItems = map (findArmorType armory) allItems 
--}           
+-}
 
+-- Function to compare two pieces of armor
+compareArmorValue x y
+    | (getValue x) > (getValue y) = GT
+    | (getValue x) < (getValue y) = LT
+    | (getValue x) == (getValue y) = compare (getCost x) (getCost y)
+
+-- Sort list of armor by it's value and then cost if they are equal
+sortByValue :: [Item] -> [Item]
+sortByValue newList = sortBy compareArmorValue newList
+
+-- Sort list by armor type
 sortByType :: [Item] -> String -> [Item]
-sortByType allItems armorType = filter isType allItems
-    where isType i = armorType == (getType i)
+sortByType allItems armorType = 
+    let newList = filter isType allItems
+    in (reverse . sortByValue) newList
+        where isType i = armorType == (getType i)
 
 ---------------------------- Main Driver -----------------------------------
 --
@@ -124,10 +137,10 @@ main = do
     -- more efficiently
     let allItems = (generateItems . parseComma . tail . lines) contents
     
-    let helmets = sortByType allItems "Helmet"
-    let chests = sortByType allItems "Chest"
+    let helmets  = sortByType allItems "Helmet"
+    let chests   = sortByType allItems "Chest"
     let leggings = sortByType allItems "Leggings"
-    let boots = sortByType allItems "Boots"
+    let boots    = sortByType allItems "Boots"
 
     let emptyArmory = Armory {
                 everything = [],
