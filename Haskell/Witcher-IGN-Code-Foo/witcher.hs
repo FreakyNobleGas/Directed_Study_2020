@@ -141,19 +141,27 @@ generateListOfItems selectedItems helmets chests leggings boots extraItems = [(h
                                                                              (extraItems !! fromMaybe 0 (lookup "extraItem" selectedItems))]
 
 --updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
-updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
+updateInventory :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
 updateInventory selectedItems helmets chests leggings boots extraItems = 
     let newList = map incrementVal selectedItems
-    in (reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
+    in (head . reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
         where incrementVal i = (fst i, (snd i) + 1)
 
---calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
-calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
+calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+--calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
 calculateResult cost selectedItems helmets chests leggings boots extraItems = 
     --if cost <= 300 
     --then do selectedItems
     --else do 
-    updateInventory selectedItems helmets chests leggings boots extraItems        
+    let newItem = updateInventory selectedItems helmets chests leggings boots extraItems
+    in if (getExtra newItem)
+       then [("helmet", fromMaybe 0 (lookup "helmet" selectedItems)),
+             ("chest",  fromMaybe 0 (lookup "chest" selectedItems)),
+             ("leggings",  fromMaybe 0 (lookup "leggings" selectedItems)),
+             ("boots",  fromMaybe 0 (lookup "boots" selectedItems)),
+             ("extraItem",  (fromMaybe 0 (lookup "extraItem" selectedItems)) + 1)
+            ] 
+        else selectedItems
 
 
 ---------------------------- Main Driver -----------------------------------
@@ -196,7 +204,8 @@ main = do
                         else putStrLn "Need to keep looking"
     -}
     putStrLn "---RESULT---"
-    printAllItems result
+    --printAllItems result
+    print result
     putStrLn "---COST---"
     print cost
     --print (helmets  !! fromMaybe 0 (lookup "helmet" selectedItems))
