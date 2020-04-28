@@ -86,6 +86,9 @@ generateItem i =
         newExtra       = False
     in Item {armorType = newArmorType, name = newName, cost = newCost, armorValue = newArmorValue, extra = newExtra}
 
+--
+-- Change Armor's boolean value to be an extra item
+--
 changeToExtra :: [Item] -> [Item]
 changeToExtra allItems = map changeExtraBool allItems
                             where changeExtraBool i = Item {
@@ -102,53 +105,80 @@ changeToExtra allItems = map changeExtraBool allItems
 generateItems :: [[String]] -> [Item]
 generateItems all = map generateItem all
 
+--
+-- Print list of items
+--
 printAllItems :: [Item] -> IO()
 printAllItems i = mapM_ print i
 
--- Function to compare two pieces of armor
+--
+-- Function to compare two pieces of armor by armor value, then cost
+--
 compareArmorValue x y
     | (getValue x) > (getValue y) = GT
     | (getValue x) < (getValue y) = LT
     | (getValue x) == (getValue y) = compare (getCost x) (getCost y)
 
+--
 -- Sort list of armor by it's value and then cost if they are equal
+--
 sortByValue :: [Item] -> [Item]
 sortByValue newList = sortBy compareArmorValue newList
 
+--
 -- Sort list by armor type
+--
 sortByType :: [Item] -> String -> [Item]
 sortByType allItems armorType = 
     let newList = filter isType allItems
     in (reverse . sortByValue) newList
         where isType i = armorType == (getType i)
 
+--
+-- Calculate the cost of a complete item set
+--
 calculateCost :: Item -> Item -> Item -> Item -> Item -> Int
 calculateCost helmet chest legging boot extraItem =
     (getCost helmet) + (getCost chest) + (getCost legging) + (getCost boot) + (getCost extraItem)
 
+--
+-- Find the index of a specific piece of armor
+--
 itemLookUp :: String -> [Item] -> [(String, Int)] -> Item
 itemLookUp armorType items selectedItems = items !! fromMaybe 0 (lookup armorType selectedItems)
 
+--
+-- Update the current index of a specific armor type
+--
 updateTuple :: String -> [Item] -> Bool -> [(String, Int)] -> (String, Int)
 updateTuple armorType items increment selectedItems = 
     if increment
     then do (armorType,  (fromMaybe 0 (lookup armorType selectedItems)) + 1)
     else do (armorType,  fromMaybe 0  (lookup armorType selectedItems))
 
+--
+-- Based on the current indexes for each piece of armor, generate a complete item set
+--
 generateListOfItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
-generateListOfItems selectedItems helmets chests leggings boots extraItems = [itemLookUp "helmet" helmets selectedItems,
-                                                                             itemLookUp "chest" chests selectedItems,
-                                                                             itemLookUp "leggings" leggings selectedItems,
-                                                                             itemLookUp "boots" boots selectedItems,
-                                                                             itemLookUp "extraItem" extraItems selectedItems]
+generateListOfItems selectedItems helmets chests leggings boots extraItems = [itemLookUp "helmet"    helmets    selectedItems,
+                                                                             itemLookUp  "chest"     chests     selectedItems,
+                                                                             itemLookUp  "leggings"  leggings   selectedItems,
+                                                                             itemLookUp  "boots"     boots      selectedItems,
+                                                                             itemLookUp  "extraItem" extraItems selectedItems]
 
---calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
+--
+-- Find each piece of armor that is next in list for each armor type, and return the one with the best armor value.
+-- If two pieces of armor have the same value, then return the one that costs the most.
+--
 calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
 calculateBestItem selectedItems helmets chests leggings boots extraItems = 
     let newList = map incrementVal selectedItems
     in (head . reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
         where incrementVal i = (fst i, (snd i) + 1)
 
+--
+-- After finding the best item, update the current selected item for the correct armor type
+--
 updateSelectedItems :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
 updateSelectedItems selectedItems helmets chests leggings boots extraItems = 
     let newItem = calculateBestItem selectedItems helmets chests leggings boots extraItems
@@ -191,8 +221,11 @@ updateSelectedItems selectedItems helmets chests leggings boots extraItems =
                         ]
             _ -> error "Could not find type!"
 
+--
+-- Calculate the cost of the current set of armor and if it costs more than 300 crowns, calculate the cost of the
+-- next possible combination of armor until the total cost is less than 300 crowns.
+--
 calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [(String, Int)]
---calculateResult :: Int -> [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item]
 calculateResult cost selectedItems helmets chests leggings boots extraItems = 
     if cost <= 300 
     then do selectedItems
@@ -221,20 +254,24 @@ main = do
     -- more efficiently
     let allItems = (reverse . sortByValue . generateItems . parseComma . tail . lines) contents
     
+    -- Sort each list so that it is by best to worst armor value
     let helmets  = sortByType allItems "Helmet"
     let chests   = sortByType allItems "Chest"
     let leggings = sortByType allItems "Leggings"
     let boots    = sortByType allItems "Boots"
     let extraItems = changeToExtra allItems
     
+    -- Dictionary for each armor type and it's current index
     let selectedItems = [("helmet", 0), ("chest", 0), ("leggings", 0), ("boots", 0), ("extraItem", 0)]
 
-    let cost = calculateCost (itemLookUp "helmet" helmets selectedItems)
-                             (itemLookUp "chest" chests selectedItems)
-                             (itemLookUp "leggings" leggings selectedItems)
-                             (itemLookUp "boots" boots selectedItems)
+    -- Find the cost of the best possible armor set
+    let cost = calculateCost (itemLookUp "helmet"    helmets    selectedItems)
+                             (itemLookUp "chest"     chests     selectedItems)
+                             (itemLookUp "leggings"  leggings   selectedItems)
+                             (itemLookUp "boots"     boots      selectedItems)
                              (itemLookUp "extraItem" extraItems selectedItems)
     
+    -- Find best possible combination of armor under 300 crowns
     let result = generateListOfItems (calculateResult cost
                                                      selectedItems
                                                      helmets
