@@ -152,7 +152,7 @@ itemLookUp armorType items selectedItems = items !! fromMaybe 0 (lookup armorTyp
 --
 updateTuple :: String -> [Item] -> Bool -> [(String, Int)] -> (String, Int)
 updateTuple armorType items increment selectedItems = 
-    if increment
+    if increment && (((fromMaybe 0 (lookup armorType selectedItems)) + 1) < length items)
     then do (armorType,  (fromMaybe 0 (lookup armorType selectedItems)) + 1)
     else do (armorType,  fromMaybe 0  (lookup armorType selectedItems))
 
@@ -172,9 +172,30 @@ generateListOfItems selectedItems helmets chests leggings boots extraItems = [it
 --
 calculateBestItem :: [(String, Int)] -> [Item] -> [Item] -> [Item] -> [Item] -> [Item] -> Item
 calculateBestItem selectedItems helmets chests leggings boots extraItems = 
-    let newList = map incrementVal selectedItems
-    in (head . reverse . sortByValue) (generateListOfItems newList helmets chests leggings boots extraItems)
-        where incrementVal i = (fst i, (snd i) + 1)
+    let newList = [ updateTuple "helmet" helmets True selectedItems,
+                    updateTuple "chest" chests True selectedItems,
+                    updateTuple "leggings" leggings True selectedItems,
+                    updateTuple "boots" boots True selectedItems,
+                    updateTuple "extraItem" extraItems True selectedItems
+                  ]
+    in compareValues (generateListOfItems newList helmets chests leggings boots extraItems)
+                     (generateListOfItems selectedItems helmets chests leggings boots extraItems)
+                     0
+                     500
+                     0
+                 
+
+compareValues :: [Item] -> [Item] -> Int -> Int -> Int -> Item
+compareValues newList oldList index diffValue bestItem = 
+    if index > 4
+    then (newList !! bestItem)
+    else
+        let newDiffValue = (getValue (oldList !! index) - getValue(newList !! index)) 
+        in if (newDiffValue < diffValue) &&  (newDiffValue /= 0)
+           then compareValues newList oldList (index + 1) newDiffValue index
+           else
+               compareValues newList oldList (index + 1) diffValue bestItem
+        
 
 --
 -- After finding the best item, update the current selected item for the correct armor type
